@@ -1,0 +1,40 @@
+- name: Setup a pareviewsh for Drupal module best practices
+  hosts: vagrant1
+  vars:
+    user_home_path: /home/vagrant
+    user_name: vagrant
+  pre_tasks:
+    - name: install apt packages
+      apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
+      sudo: True
+      with_items:
+        - php5-cli
+
+  roles:
+    - role: geerlingguy.composer
+      sudo: True
+      composer_home_owner: {{ user_name }}
+      composer_home_group: {{ user_name }}
+      composer_global_packages:
+        - name: drupal/coder
+
+  post_tasks:
+    - name: config coder phpcs
+      sudo: True
+      file: >
+        dest=/usr/local/bin/phpcs
+        src={{ user_home_path }}/.composer/vendor/bin/phpcs
+        state=link
+    - name: config coder phpcbf
+      sudo: True
+      file: >
+        dest=/usr/local/bin/phpcbf
+        src={{ user_home_path }}/.composer/vendor/bin/phpcbf
+        state=link
+    - name: config coder_sniffer
+      shell: phpcs --config-set installed_paths {{ user_home_path }}/.composer/vendor/drupal/coder/coder_sniffer
+
+
+
+
+
