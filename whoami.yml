@@ -1,0 +1,9 @@
+- name: show return value of command module
+  hosts: vagrant1
+  tasks:
+    - name: capture output of id commad
+      command: id -un
+      register: login
+
+    - debug: var=login
+    - debug: msg="Logged in as user {{ login.stdout }}"

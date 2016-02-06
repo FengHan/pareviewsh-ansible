@@ -4,17 +4,37 @@
     user_home_path: /home/vagrant
     user_name: vagrant
   pre_tasks:
+    - name: remove npm
+      sudo: True
+      apt: name=npm state=absent
+
+    - name: get nodesource's shell
+      sudo: True
+      get_url:
+        url: https://deb.nodesource.com/setup
+        dest: /usr/local/src/nodesource.sh
+        mode: 0777
+
+    - name: enable nodesource's repo and install
+      sudo: True
+      command: 'bash /usr/local/src/nodesource.sh '
+
     - name: install apt packages
       apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
       sudo: True
       with_items:
         - php5-cli
+        - help2man
+        - php-pear
+        - git
+        - curl
+        - nodejs
 
   roles:
     - role: geerlingguy.composer
       sudo: True
-      composer_home_owner: {{ user_name }}
-      composer_home_group: {{ user_name }}
+      composer_home_owner: "{{ user_name }}"
+      composer_home_group: "{{ user_name }}"
       composer_global_packages:
         - name: drupal/coder
 
@@ -31,8 +51,80 @@
         dest=/usr/local/bin/phpcbf
         src={{ user_home_path }}/.composer/vendor/bin/phpcbf
         state=link
+
     - name: config coder_sniffer
       shell: phpcs --config-set installed_paths {{ user_home_path }}/.composer/vendor/drupal/coder/coder_sniffer
+
+    - name: git clone codespell
+      sudo: True
+      git: repo=https://github.com/lucasdemarchi/codespell.git dest=/usr/local/src/codespell
+
+   # - command: 'make install chdir: /usr/local/src/codespell/'
+   #   sudo: True
+
+   # - name: sudo cp codespell /usr/local/bin
+   #   sudo: True
+   #   file: >
+   #     dest=/usr/local/bin/codespell
+   #     src=/usr/local/src/codespell
+   #     state=file
+
+    - pear: name=PHP_CodeSniffer state=present
+      sudo: True
+
+    - name: register variables
+      command: pear config-get php_dir
+      register: php_directory
+
+    - name: git clone secure_cs
+      sudo: True
+      git: repo=git://git.drupal.org/sandbox/coltrane/1921926.git dest={{ php_directory.stdout }}/secure_cs
+
+    - name: sudo ln -sv ./secure_cs/DrupalSecure ./DrupalSecure
+      sudo: True
+      file: >
+        dest={{ php_directory.stdout }}/DrupalSecure
+        src={{ php_directory.stdout }}/secure_cs/DrupalSecure
+        state=link
+    - name: remove npm
+      apt: name=npm state=absent
+
+    - name: install eslint
+      sudo: True
+      npm: name=eslint global=yes
+      #ignore_errors: True
+
+#    - name: eslint --init
+#      command: 'eslint --init'
+
+    - name: Download pareviewsh
+      sudo: True
+      get_url:
+        url: http://ftp.drupal.org/files/projects/pareviewsh-7.x-1.7.tar.gz
+        dest: /usr/local/src/pareviewsh-7.x-1.7.tar.gz
+        mode: 0755
+
+    - name: sudo tar xzf pareviewsh-7.x-1.7.tar.gz
+      sudo: True
+      unarchive: src=/usr/local/src/pareviewsh-7.x-1.7.tar.gz dest=/usr/local/src/ copy=no
+
+    - name: link pareview
+      sudo: True
+      file: >
+        src=/usr/local/src/pareviewsh/pareview.sh
+        dest=/usr/local/bin/pareview
+        state=link
+
+
+
+
+
+
+
+
+
+
+
 
 
 
