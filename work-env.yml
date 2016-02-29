@@ -1,0 +1,13 @@
+- name: Setup Coding Environment For Ubuntu PC
+  hosta: vagrant1
+  tasks:
+    - name: install phpstorm
+      get_url: http://download3.navicat.com/download/navicat111_premium_cs.tar.gz
+      dest: ~/soft/src/navicat111_premium_cs.tar.gz
+      mode: 0755
+
+    - name: sudo tar xzf pareviewsh-7.x-1.7.tar.gz
+      sudo: True
+      unarchive: src=~/soft/src/navicat111_premium_cs.tar.gz dest=~/soft/src/navicat111_premium_cs copy=no
+
+
