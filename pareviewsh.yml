@@ -1,5 +1,5 @@
 - name: Setup a pareviewsh for Drupal module best practices
-  hosts: vagrant1
+  hosts: localhost
   vars:
     user_home_path: /home/michaelh
     user_name: michaelh
