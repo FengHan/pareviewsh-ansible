@@ -1,8 +1,8 @@
 - name: Setup a pareviewsh for Drupal module best practices
   hosts: localhost
   vars:
-    user_home_path: /home/michaelh
-    user_name: michaelh
+    user_home_path: /home/vagrant
+    user_name: vagrant
   pre_tasks:
     - name: remove npm
       sudo: True
